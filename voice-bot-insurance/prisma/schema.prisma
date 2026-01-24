@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// User model - consumers who interact with voice bots
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  phone         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  conversations Conversation[]
+  policies      Policy[]
+}
+
+// Admin model - users who manage voice bots
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("admin") // admin, super_admin
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// VoiceBot model - configurable AI voice assistants
+model VoiceBot {
+  id             String         @id @default(cuid())
+  name           String
+  description    String?
+  voiceId        String         // Browser voice URI
+  voiceSettings  String         // JSON: { rate, pitch, volume, language }
+  systemPrompt   String         // The AI system prompt
+  greetingMessage String        // Initial greeting when call starts
+  insuranceTypes String         // JSON array of insurance types this bot handles
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  conversations  Conversation[]
+}
+
+// InsuranceProvider model - insurance companies
+model InsuranceProvider {
+  id          String          @id @default(cuid())
+  name        String
+  logoUrl     String?
+  description String?
+  website     String?
+  planTypes   String          // JSON array of plan types offered
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  plans       InsurancePlan[]
+}
+
+// InsurancePlan model - specific insurance products
+model InsurancePlan {
+  id          String            @id @default(cuid())
+  providerId  String
+  provider    InsuranceProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  name        String
+  type        String            // health, auto, life, home
+  coverage    String            // Coverage description
+  premium     Float             // Monthly premium amount
+  details     String            // JSON with detailed plan info
+  features    String            // JSON array of features
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  quotes      Quote[]
+  policies    Policy[]
+}
+
+// Conversation model - voice interaction sessions
+model Conversation {
+  id          String    @id @default(cuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  botId       String
+  bot         VoiceBot  @relation(fields: [botId], references: [id], onDelete: Cascade)
+  status      String    @default("active") // active, completed, abandoned
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+  summary     String?   // AI-generated summary of the conversation
+  userData    String?   // JSON: extracted user data from conversation
+  messages    Message[]
+  quotes      Quote[]
+}
+
+// Message model - individual messages in a conversation
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // user, assistant, system
+  content        String
+  audioDuration  Float?       // Duration in seconds if voice message
+  createdAt      DateTime     @default(now())
+}
+
+// Quote model - insurance quotes generated during conversations
+model Quote {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  planId         String
+  plan           InsurancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  userData       String       // JSON: user data used for quote
+  quoteAmount    Float        // Calculated quote amount
+  status         String       @default("generated") // generated, presented, accepted, rejected
+  createdAt      DateTime     @default(now())
+  expiresAt      DateTime
+}
+
+// Policy model - purchased insurance policies
+model Policy {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId       String
+  plan         InsurancePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  policyNumber String        @unique
+  startDate    DateTime
+  endDate      DateTime
+  premium      Float
+  status       String        @default("active") // active, cancelled, expired
+  details      String        // JSON: policy details
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
