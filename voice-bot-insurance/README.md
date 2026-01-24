@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InsureVoice - AI Voice Bot Insurance Platform
+
+A web-based AI voice bot platform that enables users to purchase insurance from multiple providers through natural voice conversations.
+
+## Features
+
+- **Voice Interaction**: Browser-based voice conversations using Web Speech API
+- **Multiple Insurance Types**: Health, Auto, Life, and Home insurance
+- **Admin Dashboard**: Create and manage voice bots, configure prompts, view call history
+- **Consumer Marketplace**: Browse providers, compare plans, get voice assistance
+- **AI-Powered**: OpenAI GPT-4 for natural conversation with function calling
+- **Voice Customization**: Select voice, adjust rate, pitch, and volume
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), React, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **Database**: SQLite with Prisma ORM
+- **AI**: OpenAI API with function calling
+- **Voice**: Web Speech API (SpeechRecognition + SpeechSynthesis)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ installed
+- OpenAI API key (optional - demo mode works without it)
+
+### Installation
+
+1. Clone the repository and navigate to the project:
+
+```bash
+cd voice-bot-insurance
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Set up environment variables:
+
+```bash
+# Edit .env file with your OpenAI API key
+OPENAI_API_KEY="sk-your-openai-api-key-here"
+```
+
+4. Set up the database:
+
+```bash
+npx prisma db push
+npm run db:seed
+```
+
+5. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+voice-bot-insurance/
+├── app/
+│   ├── (admin)/              # Admin dashboard pages
+│   │   ├── admin/
+│   │   │   ├── bots/         # Bot management
+│   │   │   └── calls/        # Call history
+│   │   └── layout.tsx
+│   ├── (consumer)/           # Consumer-facing pages
+│   │   ├── call/             # Voice interaction
+│   │   ├── providers/        # Insurance providers
+│   │   └── page.tsx          # Homepage
+│   └── api/                  # API routes
+│       ├── bots/
+│       ├── chat/
+│       └── providers/
+├── components/
+│   ├── admin/                # Admin components
+│   ├── voice/                # Voice interaction components
+│   └── ui/                   # shadcn/ui components
+├── hooks/
+│   ├── use-speech-recognition.ts
+│   └── use-speech-synthesis.ts
+├── lib/
+│   ├── db.ts                 # Prisma client
+│   ├── llm.ts                # OpenAI integration
+│   └── speech.ts             # Web Speech API utilities
+└── prisma/
+    ├── schema.prisma         # Database schema
+    └── seed.ts               # Seed data
+```
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+### Consumer Flow
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Visit the homepage at [http://localhost:3000](http://localhost:3000)
+2. Click "Start Voice Call" or navigate to Talk to Agent
+3. Allow microphone access when prompted
+4. Speak naturally to explore insurance options
+5. The AI assistant will guide you through the process
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Admin Dashboard
 
-## Deploy on Vercel
+1. Navigate to [http://localhost:3000/admin](http://localhost:3000/admin)
+2. Create new voice bots with custom prompts
+3. Configure voice settings (voice, rate, pitch)
+4. View call history and analytics
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Voice Bot Configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Each voice bot can be configured with:
+
+- **Name & Description**: Identify the bot's purpose
+- **Voice Settings**: Select system voice, adjust rate/pitch/volume
+- **System Prompt**: Define the bot's personality and behavior
+- **Greeting Message**: Initial message when call starts
+- **Insurance Types**: Specialize the bot for specific insurance types
+
+## API Endpoints
+
+- `GET/POST /api/bots` - List/create voice bots
+- `GET/PUT/DELETE /api/bots/[id]` - Manage specific bot
+- `POST /api/chat` - Send message and get AI response
+- `GET /api/providers` - List insurance providers
+
+## Browser Support
+
+- **Chrome/Edge**: Full support for voice features
+- **Safari**: Partial support (speech synthesis only)
+- **Firefox**: Requires enabling speech recognition flag
+
+## Development
+
+```bash
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run production build
+npm start
+
+# Database commands
+npm run db:seed     # Seed database
+npm run db:studio   # Open Prisma Studio
+```
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| DATABASE_URL | SQLite database path | Yes (default: file:./dev.db) |
+| OPENAI_API_KEY | OpenAI API key | No (demo mode available) |
+| NEXTAUTH_SECRET | NextAuth secret | No |
+| NEXTAUTH_URL | NextAuth URL | No |
+
+## License
+
+MIT

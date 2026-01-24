@@ -234,21 +234,26 @@ export async function getChatCompletion(
 
       // Process each function call
       for (const toolCall of message.tool_calls) {
-        const functionName = toolCall.function.name;
-        const args = JSON.parse(toolCall.function.arguments);
-        const result = await handleFunctionCall(functionName, args);
-        functionResults[functionName] = JSON.parse(result);
+        // Type guard for function tool calls
+        if (toolCall.type === "function") {
+          const functionName = toolCall.function.name;
+          const args = JSON.parse(toolCall.function.arguments);
+          const result = await handleFunctionCall(functionName, args);
+          functionResults[functionName] = JSON.parse(result);
+        }
       }
 
       // Get a follow-up response with function results
       const functionMessages: ChatCompletionMessageParam[] = [
         ...formattedMessages,
         message as ChatCompletionMessageParam,
-        ...message.tool_calls.map((toolCall) => ({
-          role: "tool" as const,
-          tool_call_id: toolCall.id,
-          content: JSON.stringify(functionResults[toolCall.function.name]),
-        })),
+        ...message.tool_calls
+          .filter((tc): tc is typeof tc & { type: "function" } => tc.type === "function")
+          .map((toolCall) => ({
+            role: "tool" as const,
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(functionResults[toolCall.function.name]),
+          })),
       ];
 
       const followUpResponse = await openai.chat.completions.create({
