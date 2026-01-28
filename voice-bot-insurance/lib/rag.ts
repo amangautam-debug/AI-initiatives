@@ -247,17 +247,40 @@ export async function getBotRecommendationContext(botId: string, query: string):
 // Parse different file types
 export async function parseDocument(file: File, fileName: string): Promise<string> {
   const extension = fileName.split(".").pop()?.toLowerCase();
+  console.log(`[RAG] Parsing file: ${fileName}, extension: ${extension}`);
 
   if (extension === "txt" || extension === "json") {
-    return await file.text();
+    const text = await file.text();
+    console.log(`[RAG] Text file parsed, length: ${text.length}`);
+    return text;
   }
 
   if (extension === "pdf") {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require("pdf-parse");
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const data = await pdfParse(buffer);
-    return data.text;
+    try {
+      console.log(`[RAG] Parsing PDF with unpdf...`);
+      const arrayBuffer = await file.arrayBuffer();
+      console.log(`[RAG] PDF arrayBuffer size: ${arrayBuffer.byteLength}`);
+      
+      // Use unpdf for lightweight PDF parsing
+      const { extractText } = await import("unpdf");
+      const result = await extractText(new Uint8Array(arrayBuffer));
+      
+      // Handle different result types - text could be string or array
+      let textContent = "";
+      if (typeof result.text === "string") {
+        textContent = result.text;
+      } else if (Array.isArray(result.text)) {
+        textContent = result.text.join("\n");
+      } else {
+        textContent = String(result.text || "");
+      }
+      
+      console.log(`[RAG] PDF parsed, text length: ${textContent.length}, pages: ${result.totalPages}`);
+      return textContent;
+    } catch (pdfError) {
+      console.error(`[RAG] PDF parsing error:`, pdfError);
+      throw new Error(`Failed to parse PDF: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
+    }
   }
 
   throw new Error(`Unsupported file type: ${extension}`);

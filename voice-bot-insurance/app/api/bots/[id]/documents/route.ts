@@ -51,6 +51,7 @@ export async function POST(
 ) {
   try {
     const { id: botId } = await params;
+    console.log(`[Bot Documents] POST - botId: ${botId}`);
 
     // Verify bot exists
     const bot = await prisma.voiceBot.findUnique({
@@ -58,6 +59,7 @@ export async function POST(
     });
 
     if (!bot) {
+      console.log(`[Bot Documents] Bot not found: ${botId}`);
       return NextResponse.json(
         { error: "Bot not found" },
         { status: 404 }
@@ -67,6 +69,8 @@ export async function POST(
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const docType = (formData.get("docType") as string) || "knowledge";
+    
+    console.log(`[Bot Documents] File: ${file?.name}, Type: ${docType}`);
     
     if (!file) {
       return NextResponse.json(
@@ -87,7 +91,9 @@ export async function POST(
     }
 
     // Parse document content
+    console.log(`[Bot Documents] Parsing ${fileName}...`);
     const content = await parseDocument(file, fileName);
+    console.log(`[Bot Documents] Parsed content length: ${content?.length || 0}`);
     
     if (!content || content.trim().length === 0) {
       return NextResponse.json(
@@ -97,12 +103,14 @@ export async function POST(
     }
 
     // Add to bot's document store
+    console.log(`[Bot Documents] Adding document to bot ${botId}...`);
     const document = await addBotDocument(
       botId, 
       fileName, 
       content, 
       docType as "knowledge" | "recommendation"
     );
+    console.log(`[Bot Documents] Document saved: ${document.id}, chunks: ${document.chunks.length}`);
 
     return NextResponse.json({
       success: true,
@@ -116,8 +124,9 @@ export async function POST(
     });
   } catch (error) {
     console.error("[Bot Documents] Upload error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to upload document" },
+      { error: "Failed to upload document", details: errorMessage },
       { status: 500 }
     );
   }
