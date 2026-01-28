@@ -111,15 +111,21 @@ export function BotForm({ bot }: BotFormProps) {
 
   const loadDocuments = async (botId: string) => {
     try {
+      console.log(`[LoadDocs] Loading documents for bot ${botId}...`);
+      
       // Load knowledge documents
       const knowledgeRes = await fetch(`/api/bots/${botId}/documents?type=knowledge`);
       const knowledgeData = await knowledgeRes.json();
+      console.log(`[LoadDocs] Knowledge docs:`, knowledgeData);
       setKnowledgeDocs(knowledgeData.documents || []);
 
       // Load recommendation documents
       const recRes = await fetch(`/api/bots/${botId}/documents?type=recommendation`);
       const recData = await recRes.json();
+      console.log(`[LoadDocs] Recommendation docs:`, recData);
       setRecommendationDocs(recData.documents || []);
+      
+      console.log(`[LoadDocs] Loaded ${knowledgeData.documents?.length || 0} knowledge, ${recData.documents?.length || 0} recommendation docs`);
     } catch (error) {
       console.error("Failed to load documents:", error);
     }
@@ -144,8 +150,13 @@ export function BotForm({ bot }: BotFormProps) {
     const setUploading = docType === "knowledge" ? setIsUploadingKnowledge : setIsUploadingRecommendation;
     setUploading(true);
 
+    let successCount = 0;
+    let failCount = 0;
+
     for (const file of Array.from(files)) {
       try {
+        console.log(`[Upload] Uploading ${file.name} as ${docType}...`);
+        
         const formData = new FormData();
         formData.append("file", file);
         formData.append("docType", docType);
@@ -156,8 +167,16 @@ export function BotForm({ bot }: BotFormProps) {
         });
 
         const data = await response.json();
+        console.log(`[Upload] Response:`, data);
         
-        if (!data.success) {
+        if (data.success) {
+          successCount++;
+          toast({
+            title: "File uploaded",
+            description: `${file.name} - ${data.document.chunksCount} chunks created`,
+          });
+        } else {
+          failCount++;
           toast({
             title: "Upload failed",
             description: data.error || `Failed to upload ${file.name}`,
@@ -165,11 +184,22 @@ export function BotForm({ bot }: BotFormProps) {
           });
         }
       } catch (error) {
+        failCount++;
         console.error(`Upload error for ${file.name}:`, error);
+        toast({
+          title: "Upload error",
+          description: `Error uploading ${file.name}`,
+          variant: "destructive",
+        });
       }
     }
 
+    console.log(`[Upload] Complete. Success: ${successCount}, Failed: ${failCount}`);
+    
+    // Reload documents
+    console.log(`[Upload] Reloading documents for bot ${bot.id}...`);
     await loadDocuments(bot.id);
+    
     setUploading(false);
     
     // Reset input
@@ -179,11 +209,6 @@ export function BotForm({ bot }: BotFormProps) {
     if (docType === "recommendation" && recommendationInputRef.current) {
       recommendationInputRef.current.value = "";
     }
-
-    toast({
-      title: "Upload complete",
-      description: `Documents added to ${docType === "knowledge" ? "Knowledge Base" : "Recommendation Logic"}.`,
-    });
   };
 
   const handleDeleteDocument = async (documentId: string) => {

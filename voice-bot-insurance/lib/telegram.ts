@@ -17,11 +17,23 @@ const openai = new OpenAI({
 // Singleton bot instance
 let botInstance: TelegramBot | null = null;
 
-// In-memory conversation history (use Redis/DB in production)
+// In-memory conversation history with persistence
 const conversationHistory: Map<number, ChatMessage[]> = new Map();
 
 // User preferences (voice mode on/off)
 const userVoiceMode: Map<number, boolean> = new Map();
+
+// Get conversation history for a chat
+function getConversationHistory(chatId: number): ChatMessage[] {
+  return conversationHistory.get(chatId) || [];
+}
+
+// Save conversation history
+function saveConversationHistory(chatId: number, history: ChatMessage[]): void {
+  // Keep only last 20 messages for better context
+  const trimmedHistory = history.slice(-20);
+  conversationHistory.set(chatId, trimmedHistory);
+}
 
 interface BotConfig {
   id: string;
@@ -50,8 +62,14 @@ async function getActiveBotConfig(): Promise<BotConfig | null> {
 // Build system prompt with config and RAG
 async function buildSystemPrompt(userMessage: string): Promise<{ prompt: string; botId: string | null }> {
   const botConfig = await getActiveBotConfig();
+  
+  console.log(`[Telegram] Active bot config: ${botConfig ? botConfig.id : 'NONE - using default'}`);
+  
   const knowledgeContext = botConfig ? await getBotRAGContext(botConfig.id, userMessage) : "";
   const recommendationContext = botConfig ? await getBotRecommendationContext(botConfig.id, userMessage) : "";
+  
+  console.log(`[Telegram] Knowledge context: ${knowledgeContext.length} chars`);
+  console.log(`[Telegram] Recommendation context: ${recommendationContext.length} chars`);
 
   const defaultPrompt = `You are a helpful insurance assistant based in India. You help customers find the right insurance plans for their needs. Be friendly, professional, and concise in your responses.
 
@@ -85,27 +103,30 @@ Available insurance types: Health, Motor, Life, Home from various Indian provide
 // Process incoming message
 async function processMessage(chatId: number, text: string): Promise<string> {
   try {
-    // Get or create conversation history
-    let history = conversationHistory.get(chatId) || [];
+    // Get conversation history
+    let history = getConversationHistory(chatId);
     
     // Add user message to history
     history.push({ role: "user", content: text });
     
-    // Keep only last 10 messages for context
-    if (history.length > 10) {
-      history = history.slice(-10);
-    }
-    conversationHistory.set(chatId, history);
+    console.log(`[Telegram] Chat ${chatId} - History length: ${history.length}`);
 
     // Build system prompt with RAG
-    const { prompt } = await buildSystemPrompt(text);
+    const { prompt, botId } = await buildSystemPrompt(text);
+    
+    console.log(`[Telegram] Using bot: ${botId || 'default'}`);
+    console.log(`[Telegram] Prompt length: ${prompt.length} chars`);
 
     // Get AI response
     const result = await getChatCompletion(history, prompt);
 
     // Add assistant response to history
     history.push({ role: "assistant", content: result.message });
-    conversationHistory.set(chatId, history);
+    
+    // Save updated history
+    saveConversationHistory(chatId, history);
+
+    console.log(`[Telegram] Response generated, history now: ${history.length} messages`);
 
     return result.message;
   } catch (error) {
