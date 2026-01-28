@@ -4,13 +4,12 @@ import "dotenv/config";
 import path from "path";
 
 // Create Prisma client with better-sqlite3 adapter
-// Database is in project root (file:./dev.db in .env)
 const dbPath = path.join(process.cwd(), "dev.db");
 const adapter = new PrismaBetterSqlite3({ url: dbPath });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("🌱 Starting seed...");
+  console.log("🌱 Starting seed with Indian context...");
 
   // Clear existing data
   await prisma.message.deleteMany();
@@ -23,180 +22,194 @@ async function main() {
   await prisma.admin.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log("📦 Creating insurance providers...");
+  console.log("📦 Creating Indian insurance providers...");
 
-  // Create Insurance Providers
-  const healthFirst = await prisma.insuranceProvider.create({
+  // Create Indian Insurance Providers
+  const starHealth = await prisma.insuranceProvider.create({
     data: {
-      name: "HealthFirst Insurance",
+      name: "Star Health Insurance",
       logoUrl: "",
-      description: "Leading provider of comprehensive health coverage for individuals and families",
-      website: "https://example.com/healthfirst",
+      description: "India's largest standalone health insurer with comprehensive mediclaim policies",
+      website: "https://www.starhealth.in",
       planTypes: JSON.stringify(["health"]),
       isActive: true,
     },
   });
 
-  const autoShield = await prisma.insuranceProvider.create({
+  const iciciLombard = await prisma.insuranceProvider.create({
     data: {
-      name: "AutoShield Insurance",
+      name: "ICICI Lombard",
       logoUrl: "",
-      description: "Trusted auto insurance with excellent customer service",
-      website: "https://example.com/autoshield",
-      planTypes: JSON.stringify(["auto"]),
+      description: "Leading private general insurance company offering motor and health insurance",
+      website: "https://www.icicilombard.com",
+      planTypes: JSON.stringify(["health", "auto"]),
       isActive: true,
     },
   });
 
-  const lifeSecure = await prisma.insuranceProvider.create({
+  const licIndia = await prisma.insuranceProvider.create({
     data: {
-      name: "LifeSecure Insurance",
+      name: "LIC India",
       logoUrl: "",
-      description: "Protecting families with reliable life insurance solutions",
-      website: "https://example.com/lifesecure",
+      description: "Life Insurance Corporation of India - trusted life insurance since 1956",
+      website: "https://www.licindia.in",
       planTypes: JSON.stringify(["life"]),
       isActive: true,
     },
   });
 
-  const homeGuard = await prisma.insuranceProvider.create({
+  const hdfcErgo = await prisma.insuranceProvider.create({
     data: {
-      name: "HomeGuard Insurance",
+      name: "HDFC ERGO",
       logoUrl: "",
-      description: "Complete protection for your home and belongings",
-      website: "https://example.com/homeguard",
-      planTypes: JSON.stringify(["home"]),
+      description: "Comprehensive home and motor insurance solutions",
+      website: "https://www.hdfcergo.com",
+      planTypes: JSON.stringify(["home", "auto"]),
       isActive: true,
     },
   });
 
-  console.log("📋 Creating insurance plans...");
+  const bajajAllianz = await prisma.insuranceProvider.create({
+    data: {
+      name: "Bajaj Allianz",
+      logoUrl: "",
+      description: "One of India's leading private general insurance companies",
+      website: "https://www.bajajallianz.com",
+      planTypes: JSON.stringify(["health", "auto", "home"]),
+      isActive: true,
+    },
+  });
+
+  console.log("📋 Creating insurance plans (in INR)...");
 
   // Health Insurance Plans
   await prisma.insurancePlan.createMany({
     data: [
       {
-        providerId: healthFirst.id,
-        name: "Basic Health",
+        providerId: starHealth.id,
+        name: "Star Family Health Optima",
         type: "health",
-        coverage: "Essential medical coverage including doctor visits and emergency care",
-        premium: 199,
+        coverage: "Floater policy covering entire family with cashless hospitalization",
+        premium: 12000,
         details: JSON.stringify({
-          deductible: 2500,
-          outOfPocketMax: 7500,
-          coinsurance: "80/20",
+          sumInsured: 500000,
+          roomRent: "No capping",
+          preExistingWaiting: "3 years",
+          networkHospitals: 10000,
         }),
         features: JSON.stringify([
-          "Doctor visits covered",
-          "Emergency room coverage",
-          "Prescription drug coverage",
-          "Preventive care included",
+          "Cashless hospitalization at 10,000+ hospitals",
+          "No room rent capping",
+          "Day care procedures covered",
+          "Free health checkup",
+          "Ayush treatment covered",
         ]),
         isActive: true,
       },
       {
-        providerId: healthFirst.id,
-        name: "Premium Health",
+        providerId: starHealth.id,
+        name: "Star Comprehensive",
         type: "health",
-        coverage: "Comprehensive coverage with lower deductibles and wider network",
-        premium: 349,
+        coverage: "Premium health cover with higher sum insured and enhanced benefits",
+        premium: 25000,
         details: JSON.stringify({
-          deductible: 1000,
-          outOfPocketMax: 5000,
-          coinsurance: "90/10",
+          sumInsured: 1000000,
+          roomRent: "Single private AC room",
+          preExistingWaiting: "2 years",
+          networkHospitals: 10000,
         }),
         features: JSON.stringify([
-          "All Basic Health features",
-          "Lower deductible",
-          "Mental health coverage",
-          "Specialist visits covered",
-          "Vision and dental included",
+          "₹1 Crore sum insured",
+          "Restoration of sum insured",
+          "Maternity cover included",
+          "New born baby covered from day 1",
+          "Air ambulance cover",
         ]),
         isActive: true,
       },
       {
-        providerId: healthFirst.id,
-        name: "Family Health Plus",
+        providerId: iciciLombard.id,
+        name: "ICICI Health Shield",
         type: "health",
-        coverage: "Complete family coverage with pediatric care and maternity benefits",
-        premium: 599,
+        coverage: "Affordable health coverage for individuals and families",
+        premium: 8500,
         details: JSON.stringify({
-          deductible: 1500,
-          outOfPocketMax: 6000,
-          coinsurance: "85/15",
+          sumInsured: 300000,
+          roomRent: "1% of SI",
+          preExistingWaiting: "4 years",
+          networkHospitals: 6500,
         }),
         features: JSON.stringify([
-          "All Premium Health features",
-          "Pediatric care included",
-          "Maternity coverage",
-          "Family wellness programs",
-          "24/7 telehealth access",
+          "Cashless at 6,500+ hospitals",
+          "Pre and post hospitalization",
+          "Ambulance charges covered",
+          "Day care treatments",
         ]),
         isActive: true,
       },
     ],
   });
 
-  // Auto Insurance Plans
+  // Motor Insurance Plans
   await prisma.insurancePlan.createMany({
     data: [
       {
-        providerId: autoShield.id,
-        name: "Liability Basic",
+        providerId: iciciLombard.id,
+        name: "ICICI Third Party Only",
         type: "auto",
-        coverage: "State-minimum liability coverage for budget-conscious drivers",
-        premium: 89,
+        coverage: "Mandatory third party liability cover as per Motor Vehicles Act",
+        premium: 2500,
         details: JSON.stringify({
-          bodilyInjury: "25/50",
-          propertyDamage: 25000,
-          uninsuredMotorist: false,
+          thirdPartyLiability: "Unlimited",
+          ownDamage: false,
+          personalAccident: 1500000,
         }),
         features: JSON.stringify([
-          "Bodily injury liability",
-          "Property damage liability",
-          "Legal defense coverage",
+          "Legal liability coverage",
+          "Personal accident cover for owner-driver",
+          "As per Motor Vehicles Act",
         ]),
         isActive: true,
       },
       {
-        providerId: autoShield.id,
-        name: "Comprehensive Auto",
+        providerId: hdfcErgo.id,
+        name: "HDFC ERGO Comprehensive",
         type: "auto",
-        coverage: "Full coverage including collision and comprehensive protection",
-        premium: 179,
+        coverage: "Complete protection for your car including own damage and theft",
+        premium: 12000,
         details: JSON.stringify({
-          bodilyInjury: "100/300",
-          propertyDamage: 100000,
-          collision: 500,
-          comprehensive: 250,
+          thirdPartyLiability: "Unlimited",
+          ownDamage: true,
+          idv: "Market value",
+          ncbDiscount: "Up to 50%",
         }),
         features: JSON.stringify([
-          "All Liability Basic features",
-          "Collision coverage",
-          "Comprehensive coverage",
-          "Rental car reimbursement",
-          "Roadside assistance",
+          "Own damage coverage",
+          "Theft protection",
+          "Third party liability",
+          "Personal accident cover",
+          "24x7 roadside assistance",
         ]),
         isActive: true,
       },
       {
-        providerId: autoShield.id,
-        name: "Premium Protection",
+        providerId: bajajAllianz.id,
+        name: "Bajaj Allianz Motor Premium",
         type: "auto",
-        coverage: "Maximum protection with lowest deductibles and premium perks",
-        premium: 249,
+        coverage: "Premium car insurance with zero depreciation and engine protect",
+        premium: 18000,
         details: JSON.stringify({
-          bodilyInjury: "250/500",
-          propertyDamage: 250000,
-          collision: 250,
-          comprehensive: 100,
+          thirdPartyLiability: "Unlimited",
+          ownDamage: true,
+          zeroDep: true,
+          engineProtect: true,
         }),
         features: JSON.stringify([
-          "All Comprehensive Auto features",
-          "New car replacement",
-          "Gap coverage",
-          "Accident forgiveness",
-          "Vanishing deductible",
+          "Zero depreciation cover",
+          "Engine and gearbox protection",
+          "Consumables cover",
+          "Key replacement",
+          "NCB protection",
         ]),
         isActive: true,
       },
@@ -207,61 +220,62 @@ async function main() {
   await prisma.insurancePlan.createMany({
     data: [
       {
-        providerId: lifeSecure.id,
-        name: "Term Life 10",
+        providerId: licIndia.id,
+        name: "LIC Term Plan",
         type: "life",
-        coverage: "10-year term life insurance with affordable premiums",
-        premium: 25,
+        coverage: "Pure term insurance with high life cover at affordable premium",
+        premium: 6000,
         details: JSON.stringify({
-          term: 10,
-          coverageAmount: 100000,
-          renewableOption: true,
+          sumAssured: 5000000,
+          policyTerm: 30,
+          premiumPayingTerm: 30,
         }),
         features: JSON.stringify([
-          "$100,000 death benefit",
-          "10-year level premium",
-          "Convertible to whole life",
-          "No medical exam option",
+          "₹50 Lakh life cover",
+          "Tax benefit under 80C",
+          "Option for accidental death benefit",
+          "Critical illness rider available",
         ]),
         isActive: true,
       },
       {
-        providerId: lifeSecure.id,
-        name: "Term Life 20",
+        providerId: licIndia.id,
+        name: "LIC Jeevan Labh",
         type: "life",
-        coverage: "20-year term life insurance for long-term family protection",
-        premium: 45,
+        coverage: "Endowment plan with guaranteed additions and maturity benefit",
+        premium: 35000,
         details: JSON.stringify({
-          term: 20,
-          coverageAmount: 250000,
-          renewableOption: true,
+          sumAssured: 1000000,
+          policyTerm: 25,
+          maturityBenefit: true,
+          guaranteedAdditions: true,
         }),
         features: JSON.stringify([
-          "$250,000 death benefit",
-          "20-year level premium",
-          "Convertible to whole life",
-          "Accelerated death benefit",
-          "Waiver of premium rider",
+          "Guaranteed additions every year",
+          "Maturity benefit",
+          "Death benefit",
+          "Loan facility available",
+          "Tax benefits under 80C and 10(10D)",
         ]),
         isActive: true,
       },
       {
-        providerId: lifeSecure.id,
-        name: "Whole Life Classic",
+        providerId: licIndia.id,
+        name: "LIC Jeevan Umang",
         type: "life",
-        coverage: "Permanent life insurance with cash value accumulation",
-        premium: 150,
+        coverage: "Whole life plan with annual survival benefit after premium payment",
+        premium: 50000,
         details: JSON.stringify({
-          term: "lifetime",
-          coverageAmount: 500000,
-          cashValue: true,
+          sumAssured: 1500000,
+          policyTerm: "Whole Life",
+          survivalBenefit: "8% of SA annually",
         }),
         features: JSON.stringify([
-          "$500,000 death benefit",
-          "Lifetime coverage",
-          "Cash value growth",
-          "Dividend eligible",
-          "Loan availability",
+          "Whole life coverage",
+          "8% annual survival benefit",
+          "Final maturity at age 100",
+          "Death benefit throughout life",
+          "Loan facility",
         ]),
         isActive: true,
       },
@@ -272,100 +286,106 @@ async function main() {
   await prisma.insurancePlan.createMany({
     data: [
       {
-        providerId: homeGuard.id,
-        name: "Basic Home",
+        providerId: hdfcErgo.id,
+        name: "HDFC Home Shield Basic",
         type: "home",
-        coverage: "Essential dwelling coverage for homeowners",
-        premium: 80,
+        coverage: "Essential protection for your home structure",
+        premium: 3500,
         details: JSON.stringify({
-          dwellingCoverage: 150000,
-          personalProperty: 50000,
-          liability: 100000,
+          buildingCover: 2500000,
+          contentsCover: 500000,
+          earthquakeCover: true,
         }),
         features: JSON.stringify([
-          "Dwelling protection",
-          "Personal property coverage",
-          "Liability protection",
-          "Additional living expenses",
+          "Building structure coverage",
+          "Fire and allied perils",
+          "Natural calamities",
+          "Terrorism cover",
         ]),
         isActive: true,
       },
       {
-        providerId: homeGuard.id,
-        name: "Standard Home",
+        providerId: bajajAllianz.id,
+        name: "Bajaj Home Insurance Plus",
         type: "home",
-        coverage: "Comprehensive coverage for your home and belongings",
-        premium: 130,
+        coverage: "Comprehensive home and contents protection",
+        premium: 6500,
         details: JSON.stringify({
-          dwellingCoverage: 300000,
-          personalProperty: 100000,
-          liability: 300000,
+          buildingCover: 5000000,
+          contentsCover: 1500000,
+          burglary: true,
+          publicLiability: 500000,
         }),
         features: JSON.stringify([
-          "All Basic Home features",
-          "Extended personal property",
-          "Increased liability limits",
-          "Water backup coverage",
-          "Identity theft protection",
+          "Building and contents cover",
+          "Burglary and theft protection",
+          "Electronic equipment coverage",
+          "Jewellery and valuables",
+          "Public liability",
         ]),
         isActive: true,
       },
       {
-        providerId: homeGuard.id,
-        name: "Premium Home",
+        providerId: hdfcErgo.id,
+        name: "HDFC My Home Premium",
         type: "home",
-        coverage: "Maximum protection with replacement cost coverage",
-        premium: 200,
+        coverage: "Premium all-risk home insurance with maximum benefits",
+        premium: 12000,
         details: JSON.stringify({
-          dwellingCoverage: 500000,
-          personalProperty: 200000,
-          liability: 500000,
+          buildingCover: 10000000,
+          contentsCover: 3000000,
+          allRisk: true,
+          domesticHelp: true,
         }),
         features: JSON.stringify([
-          "All Standard Home features",
-          "Replacement cost coverage",
-          "Scheduled personal property",
-          "Equipment breakdown",
-          "Umbrella liability option",
-          "Green rebuild option",
+          "All risk coverage",
+          "₹1 Crore building cover",
+          "Domestic help insurance",
+          "Rent for alternative accommodation",
+          "Personal accident cover",
         ]),
         isActive: true,
       },
     ],
   });
 
-  console.log("🤖 Creating voice bots...");
+  console.log("🤖 Creating voice bots with Indian voices...");
 
-  // Create Voice Bots
+  // Voice Bots - Single language greetings, will switch based on user's language
   await prisma.voiceBot.create({
     data: {
-      name: "General Insurance Assistant",
-      description: "Helps customers with all types of insurance inquiries",
-      voiceId: "",
+      name: "Priya - Insurance Assistant",
+      description: "Multilingual insurance assistant - starts in English, adapts to customer's language",
+      voiceId: "en-IN-NeerjaNeural",
       voiceSettings: JSON.stringify({
+        voiceURI: "en-IN-NeerjaNeural",
         rate: 1,
         pitch: 1,
         volume: 1,
-        language: "en-US",
+        language: "en-IN",
       }),
-      systemPrompt: `You are a friendly and professional insurance assistant named Alex. Your role is to help customers find the right insurance coverage for their needs.
+      systemPrompt: `You are Priya, a friendly insurance assistant from India.
 
-You can help with:
-- Health Insurance: Plans from HealthFirst Insurance ($199-$599/month)
-- Auto Insurance: Plans from AutoShield Insurance ($89-$249/month)
-- Life Insurance: Plans from LifeSecure Insurance ($25-$150/month)
-- Home Insurance: Plans from HomeGuard Insurance ($80-$200/month)
+CRITICAL LANGUAGE RULE:
+- Use ONLY ONE language at a time in your response
+- Start in English by default
+- If the customer speaks Hindi, switch COMPLETELY to Hindi for your response
+- If they speak Tamil, respond ONLY in Tamil
+- NEVER mix two languages in the same response
+- NEVER provide translations in parentheses
 
-Guidelines:
-- Be conversational, warm, and professional
-- Ask clarifying questions to understand needs
-- Explain options in simple terms
-- Collect name, age, and contact info when appropriate
-- Never pressure - let customers decide
-- Keep responses concise for voice conversation
+INSURANCE KNOWLEDGE (All prices annual in ₹):
+- Health: Star Health (₹8,500-₹25,000), ICICI Lombard
+- Motor: ICICI, HDFC ERGO, Bajaj Allianz (₹2,500-₹18,000)
+- Life: LIC India (₹6,000-₹50,000)
+- Home: HDFC ERGO, Bajaj Allianz (₹3,500-₹12,000)
 
-When quoting, mention the range of plans available and help narrow down based on their budget and needs.`,
-      greetingMessage: "Hello! I'm Alex, your insurance assistant. I can help you find the perfect coverage for health, auto, life, or home insurance. What type of insurance are you looking for today?",
+STYLE:
+- Be warm and conversational
+- Use respectful language
+- Keep responses brief for voice
+- Ask one question at a time`,
+      greetingMessage: "Hello! I am Priya, your insurance assistant. How can I help you today with health, motor, life, or home insurance?",
       insuranceTypes: JSON.stringify([]),
       isActive: true,
     },
@@ -373,37 +393,35 @@ When quoting, mention the range of plans available and help narrow down based on
 
   await prisma.voiceBot.create({
     data: {
-      name: "Health Insurance Specialist",
-      description: "Specialized assistant for health insurance inquiries",
-      voiceId: "",
+      name: "Arjun - Health Insurance Expert",
+      description: "Health insurance specialist - adapts to customer's language",
+      voiceId: "en-IN-PrabhatNeural",
       voiceSettings: JSON.stringify({
+        voiceURI: "en-IN-PrabhatNeural",
         rate: 1,
-        pitch: 1.1,
+        pitch: 1,
         volume: 1,
-        language: "en-US",
+        language: "en-IN",
       }),
-      systemPrompt: `You are a health insurance specialist named Sarah. You help customers find the right health coverage from HealthFirst Insurance.
+      systemPrompt: `You are Arjun, a health insurance specialist from India.
 
-Available Plans:
-1. Basic Health - $199/month
-   - Essential coverage, $2,500 deductible
-   - Doctor visits, ER, prescriptions, preventive care
+CRITICAL LANGUAGE RULE:
+- Use ONLY ONE language at a time
+- If customer speaks Hindi, respond ONLY in Hindi
+- If customer speaks English, respond ONLY in English  
+- NEVER mix languages or provide translations
 
-2. Premium Health - $349/month  
-   - Comprehensive, $1,000 deductible
-   - Mental health, specialists, vision & dental included
+HEALTH PLANS (Annual premium in ₹):
+1. Star Family Health Optima - ₹12,000 (₹5 Lakh cover, 10,000+ hospitals)
+2. Star Comprehensive - ₹25,000 (₹1 Crore cover, maternity included)
+3. ICICI Health Shield - ₹8,500 (₹3 Lakh cover, budget option)
 
-3. Family Health Plus - $599/month
-   - Complete family coverage
-   - Pediatric, maternity, 24/7 telehealth
-
-Guidelines:
-- Understand their health needs and family situation
-- Ask about current coverage and what's missing
-- Explain deductibles, copays, and networks simply
-- Collect name, age, family size for accurate quotes
-- Be empathetic about health concerns`,
-      greetingMessage: "Hi there! I'm Sarah, your health insurance specialist. I'm here to help you find the right health coverage for you and your family. To get started, can you tell me a bit about your current health coverage situation?",
+FOCUS:
+- Ask about family members to cover
+- Explain cashless facility
+- Mention Section 80D tax benefit
+- Keep responses concise`,
+      greetingMessage: "Hello! I am Arjun, your health insurance expert. Are you looking for coverage for yourself or your family?",
       insuranceTypes: JSON.stringify(["health"]),
       isActive: true,
     },
@@ -411,38 +429,72 @@ Guidelines:
 
   await prisma.voiceBot.create({
     data: {
-      name: "Auto Insurance Advisor",
-      description: "Expert in auto insurance coverage options",
-      voiceId: "",
+      name: "Kavitha - Motor Insurance Advisor",
+      description: "Motor insurance expert - speaks Tamil and English",
+      voiceId: "en-IN-NeerjaNeural",
       voiceSettings: JSON.stringify({
+        voiceURI: "en-IN-NeerjaNeural",
         rate: 1,
-        pitch: 0.9,
+        pitch: 1,
         volume: 1,
-        language: "en-US",
+        language: "en-IN",
       }),
-      systemPrompt: `You are an auto insurance advisor named Mike. You help customers find the right auto coverage from AutoShield Insurance.
+      systemPrompt: `You are Kavitha, a motor insurance advisor from Chennai.
 
-Available Plans:
-1. Liability Basic - $89/month
-   - State-minimum coverage
-   - Bodily injury, property damage
+CRITICAL LANGUAGE RULE:
+- Use ONLY ONE language at a time
+- If customer speaks Tamil, respond ONLY in Tamil
+- If customer speaks English, respond ONLY in English
+- NEVER mix languages
 
-2. Comprehensive Auto - $179/month
-   - Full coverage with collision
-   - Rental car, roadside assistance
+MOTOR PLANS (Annual premium in ₹):
+1. Third Party Only - ₹2,500 (mandatory by law)
+2. HDFC Comprehensive - ₹12,000 (own damage + TP, roadside assist)
+3. Bajaj Premium - ₹18,000 (zero dep, engine protect)
 
-3. Premium Protection - $249/month
-   - Maximum protection
-   - New car replacement, gap, accident forgiveness
-
-Guidelines:
-- Ask about their vehicle (make, model, year)
-- Understand driving habits and mileage
-- Explain liability vs comprehensive simply
-- Collect driver info for accurate quotes
-- Mention discounts for safe driving, bundling`,
-      greetingMessage: "Hey! I'm Mike from AutoShield Insurance. I'm here to help you get the right auto coverage. First off, what kind of vehicle are you looking to insure?",
+FOCUS:
+- Ask about vehicle type, make, model
+- Explain TP vs comprehensive
+- Mention NCB benefits
+- Keep responses brief`,
+      greetingMessage: "Hello! I am Kavitha, your motor insurance advisor. What vehicle would you like to insure today?",
       insuranceTypes: JSON.stringify(["auto"]),
+      isActive: true,
+    },
+  });
+
+  await prisma.voiceBot.create({
+    data: {
+      name: "Rajesh - LIC Life Insurance",
+      description: "LIC specialist for life insurance",
+      voiceId: "hi-IN-MadhurNeural",
+      voiceSettings: JSON.stringify({
+        voiceURI: "hi-IN-MadhurNeural",
+        rate: 1,
+        pitch: 1,
+        volume: 1,
+        language: "hi-IN",
+      }),
+      systemPrompt: `You are Rajesh, an LIC agent specializing in life insurance.
+
+CRITICAL LANGUAGE RULE:
+- Start in Hindi since you are an LIC agent
+- Use ONLY ONE language at a time
+- If customer switches to English, respond ONLY in English
+- NEVER mix languages
+
+LIC PLANS (Annual premium in ₹):
+1. LIC Term Plan - ₹6,000 (₹50 Lakh pure cover, 30 years)
+2. LIC Jeevan Labh - ₹35,000 (₹10 Lakh, guaranteed additions, maturity)
+3. LIC Jeevan Umang - ₹50,000 (whole life, 8% annual benefit)
+
+FOCUS:
+- Understand family dependents
+- Calculate coverage needed (10-15x income)
+- Explain term vs endowment
+- Mention 80C tax benefit`,
+      greetingMessage: "Namaskar! Main Rajesh hoon, LIC se. Aapko life insurance ke baare mein jaankari chahiye?",
+      insuranceTypes: JSON.stringify(["life"]),
       isActive: true,
     },
   });
@@ -451,7 +503,7 @@ Guidelines:
 
   await prisma.admin.create({
     data: {
-      email: "admin@insure-voice.com",
+      email: "admin@insurevoice.in",
       name: "Admin User",
       role: "super_admin",
     },
@@ -459,10 +511,10 @@ Guidelines:
 
   console.log("✅ Seed completed successfully!");
   console.log("\n📊 Summary:");
-  console.log(`   - ${4} insurance providers`);
-  console.log(`   - ${12} insurance plans`);
-  console.log(`   - ${3} voice bots`);
-  console.log(`   - ${1} admin user`);
+  console.log(`   - 5 insurance providers`);
+  console.log(`   - 12 insurance plans`);
+  console.log(`   - 4 voice bots (single-language responses)`);
+  console.log(`   - 1 admin user`);
 }
 
 main()

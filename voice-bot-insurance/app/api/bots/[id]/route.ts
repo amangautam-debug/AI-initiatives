@@ -20,6 +20,7 @@ export async function GET(
       ...bot,
       voiceSettings: JSON.parse(bot.voiceSettings),
       insuranceTypes: JSON.parse(bot.insuranceTypes),
+      recommendationRules: JSON.parse(bot.recommendationRules || "[]"),
     });
   } catch (error) {
     console.error("Error fetching bot:", error);
@@ -46,6 +47,7 @@ export async function PUT(
       systemPrompt,
       greetingMessage,
       insuranceTypes,
+      recommendationRules,
       isActive,
     } = body;
 
@@ -61,6 +63,8 @@ export async function PUT(
       updateData.greetingMessage = greetingMessage;
     if (insuranceTypes !== undefined)
       updateData.insuranceTypes = JSON.stringify(insuranceTypes);
+    if (recommendationRules !== undefined)
+      updateData.recommendationRules = JSON.stringify(recommendationRules);
     if (isActive !== undefined) updateData.isActive = isActive;
 
     const bot = await prisma.voiceBot.update({
@@ -72,6 +76,7 @@ export async function PUT(
       ...bot,
       voiceSettings: JSON.parse(bot.voiceSettings),
       insuranceTypes: JSON.parse(bot.insuranceTypes),
+      recommendationRules: JSON.parse(bot.recommendationRules || "[]"),
     });
   } catch (error) {
     console.error("Error updating bot:", error);

@@ -33,18 +33,33 @@ model Admin {
 
 // VoiceBot model - configurable AI voice assistants
 model VoiceBot {
-  id             String         @id @default(cuid())
-  name           String
-  description    String?
-  voiceId        String         // Browser voice URI
-  voiceSettings  String         // JSON: { rate, pitch, volume, language }
-  systemPrompt   String         // The AI system prompt
-  greetingMessage String        // Initial greeting when call starts
-  insuranceTypes String         // JSON array of insurance types this bot handles
-  isActive       Boolean        @default(true)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  conversations  Conversation[]
+  id                  String               @id @default(cuid())
+  name                String
+  description         String?
+  voiceId             String               // Browser voice URI
+  voiceSettings       String               // JSON: { rate, pitch, volume, language }
+  systemPrompt        String               // The AI system prompt (Call Script)
+  greetingMessage     String               // Initial greeting when call starts
+  insuranceTypes      String               // JSON array of insurance types this bot handles
+  recommendationRules String               @default("[]") // JSON array of recommendation rules
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  conversations       Conversation[]
+  documents           BotDocument[]
+}
+
+// BotDocument model - knowledge base documents per bot
+model BotDocument {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       VoiceBot @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name      String
+  content   String   // Full document content
+  chunks    String   // JSON array of chunks with embeddings
+  docType   String   @default("knowledge") // knowledge, recommendation
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // InsuranceProvider model - insurance companies

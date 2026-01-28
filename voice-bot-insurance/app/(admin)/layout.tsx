@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot, Phone, LayoutDashboard, Settings } from "lucide-react";
+import { Bot, Phone, LayoutDashboard, Settings, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -38,6 +38,15 @@ export default function AdminLayout({
             <Link href="/admin/calls">
               <Phone className="mr-2 h-4 w-4" />
               Call History
+            </Link>
+          </Button>
+
+          <Separator className="my-4" />
+
+          <Button variant="ghost" className="w-full justify-start" asChild>
+            <Link href="/admin/telegram">
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Telegram Bot
             </Link>
           </Button>
 

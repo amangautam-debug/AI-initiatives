@@ -14,6 +14,7 @@ async function getBot(id: string) {
       ...bot,
       voiceSettings: JSON.parse(bot.voiceSettings),
       insuranceTypes: JSON.parse(bot.insuranceTypes),
+      recommendationRules: JSON.parse(bot.recommendationRules || "[]"),
     };
   } catch {
     return null;

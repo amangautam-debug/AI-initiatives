@@ -9,7 +9,7 @@ export interface VoiceSettings {
 }
 
 export const defaultVoiceSettings: VoiceSettings = {
-  voiceURI: "",
+  voiceURI: "en-US-JennyNeural", // Default to Jenny - friendly female voice
   rate: 1,
   pitch: 1,
   volume: 1,

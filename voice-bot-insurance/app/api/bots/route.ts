@@ -13,6 +13,7 @@ export async function GET() {
       ...bot,
       voiceSettings: JSON.parse(bot.voiceSettings),
       insuranceTypes: JSON.parse(bot.insuranceTypes),
+      recommendationRules: JSON.parse(bot.recommendationRules || "[]"),
     }));
 
     return NextResponse.json(parsedBots);
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
       systemPrompt,
       greetingMessage,
       insuranceTypes,
+      recommendationRules,
       isActive = true,
     } = body;
 
@@ -61,6 +63,7 @@ export async function POST(request: NextRequest) {
         systemPrompt,
         greetingMessage,
         insuranceTypes: JSON.stringify(insuranceTypes || []),
+        recommendationRules: JSON.stringify(recommendationRules || []),
         isActive,
       },
     });
@@ -69,6 +72,7 @@ export async function POST(request: NextRequest) {
       ...bot,
       voiceSettings: JSON.parse(bot.voiceSettings),
       insuranceTypes: JSON.parse(bot.insuranceTypes),
+      recommendationRules: JSON.parse(bot.recommendationRules),
     });
   } catch (error) {
     console.error("Error creating bot:", error);
